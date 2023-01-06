@@ -65,6 +65,36 @@ contract NftMarketPlace {
 
         _setTokenUri(newTokenId, tokenUri);
 
-        //createMarketItem(newTokenId, price)
+        createMarketItem(newTokenId, price);
+
+        return newTokenId;
     }
+
+    function createMarketItem(uint256 newTokenId, uint256 price) internal {
+        require(price > 0, "err : price must be at least 1");
+        require(
+            msg.value >= _listingPrice,
+            "err : price must be greater than listing price"
+        );
+
+        idMarketItems[newTokenId] = MarketItem(
+            newTokenId,
+            payable(msg.sender),
+            payable(address(this)),
+            price,
+            false
+        );
+
+        _transfer(msg.sender, address(this), newTokenId);
+
+        emit MarketItemCreated(
+            newTokenId,
+            msg.sender,
+            address(this),
+            price,
+            false
+        );
+    }
+
+    //next
 }
