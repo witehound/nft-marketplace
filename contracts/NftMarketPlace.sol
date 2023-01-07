@@ -95,6 +95,4 @@ contract NftMarketPlace {
             false
         );
     }
-
-    //next
 }
