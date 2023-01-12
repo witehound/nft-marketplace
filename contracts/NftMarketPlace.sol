@@ -138,11 +138,37 @@ contract NftMarketPlace {
         MarketItem[] memory items = new MarketItem[](unsoldItem);
         for (uint256 i = 0; i < itemCount; i++) {
             uint256 currentId = i + 1;
-            if (_tokenIds[currentId].owner == thisContract) {
-                items[currentId] = idMarketItems[currentId];
+            if (idMarketItems[currentId].owner == thisContract) {
+                MarketItem storage item = idMarketItems[currentId];
+                items[currentIndex] = item;
                 currentIndex += 1;
             }
         }
+        return items;
+    }
+
+    function fetchMynfts() public view returns (MarketItem[] memory) {
+        uint256 itemCount = _tokenIds.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (idMarketItems[i + 1].seller == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (idMarketItems[i + 1].seller == msg.sender) {
+                uint256 currentId = i + 1;
+                MarketItem storage item = idMarketItems[currentId];
+                items[currentIndex] = item;
+                currentIndex += 1;
+            }
+        }
+
         return items;
     }
 }
