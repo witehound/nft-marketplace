@@ -95,4 +95,41 @@ contract NftMarketPlace {
             false
         );
     }
+
+    function resellToken(uint256 tokenId, uint256 updatedPrice) public payable {
+        require(
+            idMarketItems[tokenId].owner == msg.sender,
+            "err : only item owner can resell"
+        );
+        require(
+            msg.value == _listingPrice,
+            "err : fee must be equal to listin price"
+        );
+
+        idMarketItems[tokenId].sold = false;
+        idMarketItems[tokenId].price = updatedPrice;
+        idMarketItems[tokenId].seller = payable(msg.sender);
+        idMarketItems[tokenId].owner = payable(address(this));
+
+        _itemsSold.decrement();
+
+        _transfer(msg.sender, address(this), tokenId);
+    }
+
+    function executeMarketSale(uint256 tokenId) public payable {
+        uint256 price = idMarketItems[tokenId].price;
+        require(msg.value >= price, "err : sumit the askiing price");
+
+        idMarketItems[tokenId].sold = true;
+        idMarketItems[tokenId].owner = payable(address(0));
+        _itemsSold.increment();
+
+        payable(owner).transfer(_listingPrice);
+        payable(idMarketItems[tokenId].seller).transfer(msg.value);
+    }
+
+    function fetchMarketNfts() public view returns (MarketItem[] memory) {
+        uint256 itemCount = _tokenIds.current();
+        uint256 unsoldItem = itemCount - _itemsSold.current();
+    }
 }
