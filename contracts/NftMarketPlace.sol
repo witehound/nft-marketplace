@@ -121,12 +121,13 @@ contract NftMarketPlace {
         require(msg.value >= price, "err : sumit the askiing price");
 
         idMarketItems[tokenId].sold = true;
-        idMarketItems[tokenId].owner = payable(address(0));
+        idMarketItems[tokenId].owner = msg.sender;
+        idMarketItems[tokenId].price = 0 ether;
         _itemsSold.increment();
 
         payable(owner).transfer(_listingPrice);
         payable(idMarketItems[tokenId].seller).transfer(msg.value);
-        idMarketItems[tokenId].seller = msg.sender;
+        idMarketItems[tokenId].seller = address(0);
     }
 
     function fetchMarketNfts() public view returns (MarketItem[] memory) {
@@ -148,6 +149,31 @@ contract NftMarketPlace {
     }
 
     function fetchMynfts() public view returns (MarketItem[] memory) {
+        uint256 itemCount = _tokenIds.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (idMarketItems[i + 1].owner == msg.sender) {
+                itemCount += 1;
+            }
+        }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+
+        for (uint256 i = 0; i < itemCount; i++) {
+            if (idMarketItems[i + 1].owner == msg.sender) {
+                uint256 currentId = i + 1;
+                MarketItem storage item = idMarketItems[currentId];
+                items[currentIndex] = item;
+                currentIndex += 1;
+            }
+        }
+
+        return items;
+    }
+
+    function fetchItemsListed() public view returns (MarketItem[] memory) {
         uint256 itemCount = _tokenIds.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
